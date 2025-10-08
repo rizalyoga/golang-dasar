@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
@@ -36,7 +37,7 @@ type Produk struct {
 
 func main()  {
 	// Download driver pgx dengan perintah "go get github.com/jackc/pgx/v5/stdlib"
-	
+
 	// postgresql://username:password@hostname:port/db_name?sslmode=disable/enable	
 	// sslmode tergantung apakah menggnakan https atau http, jika menggunakan http/local maka nilai = disable.
 	connURI := "postgresql://postgres:mysecretpassword@localhost:5432/postgres?sslmode=disable"
@@ -50,6 +51,12 @@ func main()  {
 
 	// db.Close fungsi untuk menutup koneksi
 	defer db.Close()
+
+	// setting connection pool
+	db.SetMaxOpenConns(10) // Membatasi berapa banyak jumlah koneksi yang boleh dibuka.
+	db.SetMaxIdleConns(5) // Membatasi berapa banyak jumlah koneksi yang boleh tidak digunakan.
+	db.SetConnMaxIdleTime(15 * time.Minute) // Membatasi berapa lama koneksi tidak digunakan sebelum ditutup.
+	db.SetConnMaxLifetime(1 * time.Hour) //Membatasi berapa lama koneksi boleh digunakan kembali sebelum ditutup.
 
 	// db.ping berguna untuk verifikasi koneksi dengan database
 	err = db.Ping()

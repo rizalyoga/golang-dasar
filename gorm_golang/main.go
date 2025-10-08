@@ -23,7 +23,9 @@ func (Menu) TableName() string {
 
 func main(){
 	connURI := "postgresql://postgres:mysecretpassword@localhost:5432/toko?sslmode=disable"
-	db, err := gorm.Open(postgres.Open(connURI),&gorm.Config{})
+	db, err := gorm.Open(postgres.Open(connURI),&gorm.Config{
+		SkipDefaultTransaction: true, // Mematikan fitur transaction
+	})
 	if err != nil {
 		fmt.Printf("Gagal menghubungkan database: %v\n", err)
 		os.Exit(1)
@@ -40,15 +42,15 @@ func main(){
 	fmt.Println("Tabel berhasil dibuat.")
 
 	// Create new data
-	newMenu := Menu{Nama: "Kopi hitam", Kategori: "Minuman", Harga: 2500}
+	// newMenu := Menu{Nama: "Kopi hitam", Kategori: "Minuman", Harga: 2500}
 
-	result := db.Create(&newMenu)
-	if result.Error != nil {
-		fmt.Printf("Gagal menambahkan menu %v\n", result.Error)
-		os.Exit(1)	
-	}
+	// result := db.Create(&newMenu)
+	// if result.Error != nil {
+	// 	fmt.Printf("Gagal menambahkan menu %v\n", result.Error)
+	// 	os.Exit(1)	
+	// }
 
-	fmt.Println("Menu baru berhasil ditambahkan...")
+	// fmt.Println("Menu baru berhasil ditambahkan...")
 
 	// Get data by ID
 	var menu Menu
@@ -98,13 +100,13 @@ func main(){
 	fmt.Println(listMenuByCategory)
 
 	// Update data
-	resultUpdate := db.Model(Menu{ID: 3}).Updates(Menu{Nama: "Bakmi goreng", Kategori: "Makanan", Harga: 6000})
-	if resultUpdate.Error != nil {
-		fmt.Printf("Gagal memperbarui data %v \n",resultUpdate.Error)
-		os.Exit(1)
-	}
+	// resultUpdate := db.Model(Menu{ID: 3}).Updates(Menu{Nama: "Bakmi goreng", Kategori: "Makanan", Harga: 6000})
+	// if resultUpdate.Error != nil {
+	// 	fmt.Printf("Gagal memperbarui data %v \n",resultUpdate.Error)
+	// 	os.Exit(1)
+	// }
 
-	fmt.Println("Data berhasil di perbarui...")
+	// fmt.Println("Data berhasil di perbarui...")
 
 	// Detele data
 	resultDelete := db.Delete(&Menu{ID: 1})
@@ -114,4 +116,28 @@ func main(){
 	}
 
 	fmt.Println("Data berhasil di hapus...")
+
+
+	// Transaction 
+	// Pada gorm fitur transaction dijalankan secara otomatis, untuk mematikan setingan ini kita perlu
+	// menonaktifkan transactin melalui fingsi Config pada saat membuat koneksi.
+	// setting Config ini ada pada kode pembuatan var "db" berikut:
+
+	// db, err := gorm.Open(postgres.Open(connURI), &gorm.Config{
+	// 	SkipDefaultTransaction: true,
+	// })
+
+	// Transaction pada gorm memiliki 1 parameter, yaitu fungsi yang mereturn error atau nil.
+	// Jika fungsi mereturn error, maka secara otomatis Roleback akan dijalankan,
+	// Jika fungsi mereturn nil, maka secara otomatis Commit akan dijalankan,
+	db.Transaction(func(tx *gorm.DB) error {
+		result := tx.Delete(&Menu{ID: 4})
+		if result.Error != nil {
+			// return error akan memanggil rollback
+			return result.Error
+		} else {
+			// return nil akan memanggil Commit
+			return nil
+		}
+	})
 }
