@@ -86,7 +86,12 @@ func CheckoutOrder(db *sql.DB) gin.HandlerFunc {
 		}
 
 		// Membuat data Order dan Detail Order di DB
-		model.CreateOrder(db, order, details)
+		err = model.CreateOrder(db, order, details)
+		if err != nil {
+			log.Printf("Terjadi kesalahan saat membuat order %v\n", err)
+			c.JSON(500, gin.H{"error": "Terjadi kesalahan pada server"})
+			return
+		}
 
 		orderWithDetail := model.OrderWithDetail{
 			Order:   order,
