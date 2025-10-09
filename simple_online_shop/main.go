@@ -3,8 +3,11 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"net/http"
 	"os"
+	"simple_online_shop/handler"
 
+	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
@@ -23,6 +26,38 @@ func main() {
 	err = db.Ping()
 	if err != nil {
 		fmt.Printf("Gagal ping ke database! %v\n", err)
+		os.Exit(1)
+	}
+
+	// create table in db
+	_, err = migrate(db)
+	if err != nil {
+		fmt.Printf("Gagal melakukan migrasi database: %v\n", err)
+		os.Exit(1)
+	}
+
+	// create server
+	r := gin.Default()
+
+	r.GET("api/v1/products", handler.ListProducts(db))
+	r.GET("api/v1/products/:id", handler.GetProductsById(db))
+	r.POST("api/v1/checkout")
+
+	r.POST("api/v1/orders/:id/confirm")
+	r.GET("api/v1/orders/:id")
+
+	r.POST("api/v1/admin/products", handler.CreateProduct(db))
+	r.PUT("api/v1/admin/products/:id", handler.UpdateProduct(db))
+	r.DELETE("api/v1/admin/products/:id", handler.DeleteProduct(db))
+
+	server := &http.Server{
+		Addr:    ":5500",
+		Handler: r,
+	}
+
+	err = server.ListenAndServe()
+	if err != nil {
+		fmt.Printf("Gagal menjalankan server: %v\n", err)
 		os.Exit(1)
 	}
 }
