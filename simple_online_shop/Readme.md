@@ -11,3 +11,10 @@
   - `go get github.com/google/uuid`
 - install go crypto:
   - `go get golang.org/x/crypto`
+
+ENVIRONMENT YANG DIGUNAKAN :
+
+```
+ADMIN_SECRET_KEY= "password"
+DB_URI="postgres://postgres:mysecretpassword@localhost:5432/simple_online_shop?sslmode=disable"
+```

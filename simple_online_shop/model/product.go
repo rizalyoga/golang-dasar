@@ -10,7 +10,7 @@ type Product struct {
 	Name      string `json:"name"`
 	Price     int64  `json:"price"`
 	IsDeleted *bool  `json:"is_deleted,omitempty"`
-	// menggunakan pointer karena nantinya data tidak dikembalikan ke user / tidak ditampilkan
+	// menggunakan pointer & omitempty karena nantinya data tidak dikembalikan ke user / tidak ditampilkan
 }
 
 var (
@@ -25,11 +25,14 @@ func SelectProducts(db *sql.DB) ([]Product, error) {
 
 	query := `SELECT id, name, price FROM products WHERE is_deleted = false;`
 	rows, err := db.Query(query)
+	// Menggunakan db.Query karena respon mengembalikan banyak data
 	if err != nil {
 		return nil, err
 	}
 
 	products := []Product{}
+
+	// Looping untuk menyalurkan data product ke variable products
 	for rows.Next() {
 		var product Product
 		err := rows.Scan(&product.ID, &product.Name, &product.Price)
@@ -52,6 +55,7 @@ func SelectProductById(db *sql.DB, id string) (Product, error) {
 	var product Product
 	query := `SELECT id, name, price FROM products WHERE is_deleted = false AND id = $1;`
 	row := db.QueryRow(query, id)
+	// Menggunakan db.QueryRow karena respose hanya mengembalikan 1 row data
 	err := row.Scan(&product.ID, &product.Name, &product.Price)
 	if err != nil {
 		return Product{}, err
@@ -75,13 +79,13 @@ func InsertProduct(db *sql.DB, product Product) error {
 	return nil
 }
 
+// Update product data
 func UpdateProduct(db *sql.DB, product Product) error {
 	if db == nil {
 		return errDBNil
 	}
 
 	query := `UPDATE products SET name=$1, price=$2 WHERE id=$3;`
-
 	_, err := db.Exec(query, product.Name, product.Price, product.ID)
 	if err != nil {
 		return err
@@ -96,7 +100,8 @@ func DeleteProduct(db *sql.DB, id string) error {
 		return errDBNil
 	}
 
-	query := `DELETE FROM products WHERE id = $1;`
+	// Query tidak menggunakan DELETE karena project ini menerapkan soft deleted
+	query := `UPDATE products SET is_deleted=true WHERE id = $1;`
 	_, err := db.Exec(query, id)
 
 	if err != nil {

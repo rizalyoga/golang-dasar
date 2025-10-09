@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"simple_online_shop/handler"
+	"simple_online_shop/middleware"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -46,9 +47,9 @@ func main() {
 	r.POST("api/v1/orders/:id/confirm")
 	r.GET("api/v1/orders/:id")
 
-	r.POST("api/v1/admin/products", handler.CreateProduct(db))
-	r.PUT("api/v1/admin/products/:id", handler.UpdateProduct(db))
-	r.DELETE("api/v1/admin/products/:id", handler.DeleteProduct(db))
+	r.POST("api/v1/admin/products", middleware.AdminOnly(), handler.CreateProduct(db))
+	r.PUT("api/v1/admin/products/:id", middleware.AdminOnly(), handler.UpdateProduct(db))
+	r.DELETE("api/v1/admin/products/:id", middleware.AdminOnly(), handler.DeleteProduct(db))
 
 	server := &http.Server{
 		Addr:    ":5500",

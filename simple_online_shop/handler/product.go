@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// Get all product data
 func ListProducts(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// ambil dari database
@@ -18,6 +19,9 @@ func ListProducts(db *sql.DB) gin.HandlerFunc {
 		// berikan response
 		if err != nil {
 			log.Printf("Terjadi kesalahan saat mengambil data pada db: %v\n", err)
+			// Fungsi gin.H = sebuah map yang kuncinya selalu berupa string, dan nilainya adalah tipe data apa pun yang kompatibel dengan interface{} di Go. Jadi intinya gin.H adalah alias untuk map[string]interface{}
+
+			// Contoh: data := gin.H{"nama": "Budi", "umur": 30} = JSON {"nama": "Budi", "umur": 30} saat dikirimkan sebagai respons.
 			c.JSON(500, gin.H{"error": "Terjadi kesalahan pada server"})
 			return
 		}
@@ -32,6 +36,7 @@ func ListProducts(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
+// Get product by ID
 func GetProductsById(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// baca id dari params
@@ -44,6 +49,9 @@ func GetProductsById(db *sql.DB) gin.HandlerFunc {
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				log.Printf("Terjadi kesalahan saat mengambil data produk pada db: %v\n", err)
+				// Fungsi gin.H = sebuah map yang kuncinya selalu berupa string, dan nilainya adalah tipe data apa pun yang kompatibel dengan interface{} di Go. Jadi intinya gin.H adalah alias untuk map[string]interface{}
+
+				// Contoh: data := gin.H{"nama": "Budi", "umur": 30} = JSON {"nama": "Budi", "umur": 30} saat dikirimkan sebagai respons.
 				c.JSON(500, gin.H{"error": "Data tidak ditemukan"})
 				return
 			}
@@ -73,6 +81,9 @@ func CreateProduct(db *sql.DB) gin.HandlerFunc {
 		err := c.Bind(&product) // Bind digunakan untuk membaca request body
 		if err != nil {
 			log.Printf("Terjadi kesalahan saat membaca req body %v\n", err)
+			// Fungsi gin.H = sebuah map yang kuncinya selalu berupa string, dan nilainya adalah tipe data apa pun yang kompatibel dengan interface{} di Go. Jadi intinya gin.H adalah alias untuk map[string]interface{}
+
+			// Contoh: data := gin.H{"nama": "Budi", "umur": 30} = JSON {"nama": "Budi", "umur": 30} saat dikirimkan sebagai respons.
 			c.JSON(400, gin.H{"error": "Data produk tidak valid"})
 			return
 		}
@@ -112,6 +123,9 @@ func UpdateProduct(db *sql.DB) gin.HandlerFunc {
 		err := c.Bind(&product)
 		if err != nil {
 			log.Printf("Terjadi kesalahan saat membaca req body %v\n", err)
+			// Fungsi gin.H = sebuah map yang kuncinya selalu berupa string, dan nilainya adalah tipe data apa pun yang kompatibel dengan interface{} di Go. Jadi intinya gin.H adalah alias untuk map[string]interface{}
+
+			// Contoh: data := gin.H{"nama": "Budi", "umur": 30} = JSON {"nama": "Budi", "umur": 30} saat dikirimkan sebagai respons.
 			c.JSON(400, gin.H{"error": "Data produk tidak valid"})
 			return
 		}
@@ -137,6 +151,9 @@ func UpdateProduct(db *sql.DB) gin.HandlerFunc {
 		err = model.UpdateProduct(db, productExisting)
 		if err != nil {
 			log.Printf("Terjadi kesalahan saat update data produk %v\n", err)
+			// Fungsi gin.H = sebuah map yang kuncinya selalu berupa string, dan nilainya adalah tipe data apa pun yang kompatibel dengan interface{} di Go. Jadi intinya gin.H adalah alias untuk map[string]interface{}
+
+			// Contoh: data := gin.H{"nama": "Budi", "umur": 30} = JSON {"nama": "Budi", "umur": 30} saat dikirimkan sebagai respons.
 			c.JSON(500, gin.H{"error": "Terjadi kesalahan pada server"})
 			return
 		}
@@ -164,6 +181,9 @@ func DeleteProduct(db *sql.DB) gin.HandlerFunc {
 		err := model.DeleteProduct(db, id)
 		if err != nil {
 			log.Printf("Terjadi kesalahan saat delete data produk %v\n", err)
+			// Fungsi gin.H = sebuah map yang kuncinya selalu berupa string, dan nilainya adalah tipe data apa pun yang kompatibel dengan interface{} di Go. Jadi intinya gin.H adalah alias untuk map[string]interface{}
+
+			// Contoh: data := gin.H{"nama": "Budi", "umur": 30} = JSON {"nama": "Budi", "umur": 30} saat dikirimkan sebagai respons.
 			c.JSON(500, gin.H{"error": "Terjadi kesalahan pada server"})
 			return
 		}
