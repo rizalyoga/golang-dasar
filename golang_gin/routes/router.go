@@ -2,6 +2,7 @@ package routes
 
 import (
 	"gin_backend/controller"
+	"gin_backend/middlewares"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,6 +16,9 @@ func SetupRouter() *gin.Engine {
 
 	// route login
 	router.POST("/api/v1/login", controller.Login)
+
+	// route find users
+	router.GET("/api/v1/users", middlewares.AuthMiddleware(), controller.FindUser)
 
 	return router
 }
