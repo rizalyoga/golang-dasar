@@ -21,10 +21,11 @@ func InitDB() {
 	dbName := config.GetENV("DB_Name", "sntr_coding_golang")
 
 	// format URI untuk postgres
-	URI := fmt.Sprintf("%v://%v:%v@%v:%v/%v?sslmode=disable", dbUser, dbUser, dbPass, dbHost, dbPort, dbName)
+	URI := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", dbUser, dbPass, dbHost, dbPort, dbName)
 
 	// Koneksi ke Database
-	DB, err := gorm.Open(postgres.Open(URI), &gorm.Config{})
+	var err error
+	DB, err = gorm.Open(postgres.Open(URI), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}

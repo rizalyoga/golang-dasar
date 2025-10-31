@@ -27,7 +27,7 @@ func TranslateErrorMessage(err error) map[string]string {
 				errorsMap[field] = "Invalid email format"
 			case "unique":
 				// Pesan error jika data sudah ada
-				errorsMap[field] = fmt.Sprintf("%s already exists", field)
+				errorsMap[field] = fmt.Sprintf("%s duplicate key value violates unique constraint", field)
 			case "min":
 				// Pesan error jika nilai terlalu pendek
 				errorsMap[field] = fmt.Sprintf("%s must be at least %s characters", field, fieldError.Param())
@@ -46,7 +46,7 @@ func TranslateErrorMessage(err error) map[string]string {
 
 	if err != nil {
 		// Cek jika error mengandung "Duplicate entry" (duplikasi data di database)
-		if strings.Contains(err.Error(), "Duplicate entry") {
+		if strings.Contains(err.Error(), "duplicate key") {
 			if strings.Contains(err.Error(), "username") {
 				// Pesan error jika username sudah ada
 				errorsMap["Username"] = "Username already exists"
@@ -68,5 +68,5 @@ func TranslateErrorMessage(err error) map[string]string {
 // IsDuplicateEntryError mendeteksi apakah error dari database adalah duplicate entry
 func IsDuplicateEntryError(err error) bool {
 	// Cek apakah error merupakan duplikasi entri
-	return err != nil && strings.Contains(err.Error(), "Duplicate entry")
+	return err != nil && strings.Contains(err.Error(), "duplicate key")
 }

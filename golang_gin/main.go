@@ -3,6 +3,7 @@ package main
 import (
 	"gin_backend/config"
 	"gin_backend/database"
+	"gin_backend/routes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,8 +15,8 @@ func main() {
 	// Load database
 	database.InitDB()
 
-	// Inisialisasi gin
-	router := gin.Default()
+	// setup router
+	router := routes.SetupRouter()
 
 	// Routing menggunakan method GET
 	router.GET("/", func(ctx *gin.Context) {
