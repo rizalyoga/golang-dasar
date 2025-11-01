@@ -50,3 +50,9 @@
 ```
 # go get github.com/go-playground/validator/v10
 ```
+
+6. Install cors
+
+```
+# go get github.com/gin-contrib/cors
+```

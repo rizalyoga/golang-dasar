@@ -4,12 +4,21 @@ import (
 	"gin_backend/controller"
 	"gin_backend/middlewares"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func SetupRouter() *gin.Engine {
 	// Inisialisasi gin
 	router := gin.Default()
+
+	// Setup cors
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:  []string{"*"},
+		AllowMethods:  []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:  []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders: []string{"Content-Length"},
+	}))
 
 	// Router register
 	router.POST("/api/v1/register", controller.Register)
