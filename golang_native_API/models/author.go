@@ -11,3 +11,10 @@ type Author struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
+
+type AuthorBookResponse struct {
+	ID     uint   `json:"id"`
+	Name   string ` json:"name"`
+	Gender string ` json:"gender"`
+	Email  string ` json:"email"`
+}
