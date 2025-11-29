@@ -10,6 +10,7 @@
    - logrus = `$ go get github.com/sirupsen/logrus`
    - air = `$ air init` (jika golang air sudah terinstall di laptop)
    - godotenv = `$ go get github.com/joho/godotenv `
+   - validator package = `$ go get github.com/go-playground/validator/v10     `
 
 5. buat config file di folder config
 6. buat database file di folder database

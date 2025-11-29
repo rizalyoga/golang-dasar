@@ -1,11 +1,12 @@
 package bookcontroller
 
 import (
-	"encoding/json"
 	"errors"
 	"golang_native_api/database"
 	"golang_native_api/helper"
+	"golang_native_api/middlewares"
 	"golang_native_api/models"
+	"golang_native_api/request"
 	"net/http"
 	"strconv"
 
@@ -31,14 +32,24 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	var book models.Book
-
-	if err := json.NewDecoder(r.Body).Decode(&book); err != nil {
-		helper.Response(w, http.StatusInternalServerError, err.Error(), nil)
+	bookRequest, ok := r.Context().Value(middlewares.BookRequestKey).(request.BookRequest)
+	if !ok {
+		helper.Response(w, http.StatusInternalServerError, "Failed to get book request from context", nil)
 		return
 	}
 
-	defer r.Body.Close()
+	var book models.Book
+
+	book.Title = bookRequest.Title
+	book.Description = bookRequest.Description
+	book.AuthorID = bookRequest.AuthorID
+
+	// if err := json.NewDecoder(r.Body).Decode(&book); err != nil {
+	// 	helper.Response(w, http.StatusInternalServerError, err.Error(), nil)
+	// 	return
+	// }
+
+	// defer r.Body.Close()
 
 	var author models.Author
 
@@ -81,6 +92,12 @@ func Detail(w http.ResponseWriter, r *http.Request) {
 }
 
 func Update(w http.ResponseWriter, r *http.Request) {
+	bookRequest, ok := r.Context().Value(middlewares.BookRequestKey).(request.BookRequest)
+	if !ok {
+		helper.Response(w, http.StatusInternalServerError, "Failed to get book request from context", nil)
+		return
+	}
+
 	var book models.Book
 
 	idParams := mux.Vars(r)["id"]
@@ -97,12 +114,9 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var bookPayload models.Book
-	if err := json.NewDecoder(r.Body).Decode(&bookPayload); err != nil {
-		helper.Response(w, http.StatusInternalServerError, err.Error(), nil)
-		return
-	}
-
-	defer r.Body.Close()
+	bookPayload.AuthorID = bookRequest.AuthorID
+	bookPayload.Title = bookRequest.Title
+	bookPayload.Description = bookRequest.Description
 
 	var author models.Author
 	if err := database.DB.First(&author, bookPayload.AuthorID).Error; err != nil {

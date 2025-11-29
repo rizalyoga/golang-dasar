@@ -1,11 +1,12 @@
 package authorcontroller
 
 import (
-	"encoding/json"
 	"errors"
 	"golang_native_api/database"
 	"golang_native_api/helper"
+	"golang_native_api/middlewares" // Import middlewares to access AuthorRequestKey
 	"golang_native_api/models"
+	"golang_native_api/request" // Import request to access AuthorRequest struct
 	"net/http"
 	"strconv"
 
@@ -33,21 +34,25 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	var author models.Author
-
-	if err := json.NewDecoder(r.Body).Decode(&author); err != nil {
-		helper.Response(w, 500, err.Error(), nil)
+	// Retrieve validated AuthorRequest from context
+	authorRequest, ok := r.Context().Value(middlewares.AuthorRequestKey).(request.AuthorRequest)
+	if !ok {
+		helper.Response(w, http.StatusInternalServerError, "Failed to get author request from context", nil)
 		return
 	}
 
-	defer r.Body.Close()
+	var author models.Author
+	author.Name = authorRequest.Name
+	author.Email = authorRequest.Email
+	author.Gender = authorRequest.Gender
+	author.Age = authorRequest.Age
 
 	if err := database.DB.Create(&author).Error; err != nil {
-		helper.Response(w, 500, err.Error(), nil)
+		helper.Response(w, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
-	helper.Response(w, 201, "Author data created successfuly", nil)
+	helper.Response(w, http.StatusCreated, "Author data created successfuly", nil)
 }
 
 func Detail(w http.ResponseWriter, r *http.Request) {
@@ -70,6 +75,13 @@ func Detail(w http.ResponseWriter, r *http.Request) {
 }
 
 func Update(w http.ResponseWriter, r *http.Request) {
+	// Retrieve validated AuthorRequest from context
+	authorRequest, ok := r.Context().Value(middlewares.AuthorRequestKey).(request.AuthorRequest)
+	if !ok {
+		helper.Response(w, http.StatusInternalServerError, "Failed to get author request from context", nil)
+		return
+	}
+
 	var author models.Author
 
 	idParams := mux.Vars(r)["id"]
@@ -85,12 +97,11 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&author); err != nil {
-		helper.Response(w, http.StatusInternalServerError, err.Error(), nil)
-		return
-	}
-
-	defer r.Body.Close()
+	// Update author fields from validated request
+	author.Name = authorRequest.Name
+	author.Email = authorRequest.Email
+	author.Gender = authorRequest.Gender
+	author.Age = authorRequest.Age
 
 	if err := database.DB.Where("id = ?", id).Updates(&author).Error; err != nil {
 		helper.Response(w, http.StatusInternalServerError, err.Error(), nil)
